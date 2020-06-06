@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js -->
+</head>
+
+<body>
+    <script src="./ms.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js"></script>
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
+    <script>
+        $(document).ready(function () {
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var socket = new ReconnectingWebSocket(ws_scheme + '://' + "vqa.cloudcv.org" + "/chat/" );
+
+            socket.onopen = function () {
+                console.log("User connected to the socket with socketid " + "62e8228f-19a4-40c0-8f6a-7a0dfd12a645");
+                socket.send("62e8228f-19a4-40c0-8f6a-7a0dfd12a645");
+            }
+
+            socket.onmessage = function (response) {
+                console.log("Getting response from the worker.....");
+                console.log(JSON.parse(response.data));
+
+                response = JSON.parse(response.data);
+
+                if ("info" in response) {
+                    console.log("Info is there as the key");
+                }
+
+                if ("terminal" in response) {
+                    $('#comments').prepend('<li>' + response['terminal'] + '</li>');
+                }
+
+                if ("result" in response) {
+
+                    result = JSON.parse(response['result']);
+                    console.log(result);
+                    var d = new Date();
+                    // $("#overImg1").attr("src", result['img_path']);
+                    top5_answer = result['top5_list'];
+                    $("#progressbar0").css('width', top5_answer[0]['confidence'] + '%').attr('aria-valuenow', top5_answer[0]['confidence']).text(top5_answer[0]['confidence'].toFixed(3) + "%");
+                    $("#progressbar1").css('width', top5_answer[1]['confidence'] + '%').attr('aria-valuenow', top5_answer[1]['confidence']).text(top5_answer[1]['confidence'].toFixed(3) + "%");
+                    $("#progressbar2").css('width', top5_answer[2]['confidence'] + '%').attr('aria-valuenow', top5_answer[2]['confidence']).text(top5_answer[2]['confidence'].toFixed(3) + "%");
+                    $("#progressbar3").css('width', top5_answer[3]['confidence'] + '%').attr('aria-valuenow', top5_answer[3]['confidence']).text(top5_answer[3]['confidence'].toFixed(3) + "%");
+                    $("#progressbar4").css('width', top5_answer[4]['confidence'] + '%').attr('aria-valuenow', top5_answer[4]['confidence']).text(top5_answer[4]['confidence'].toFixed(3) + "%");
+
+                    $("#predictedAnswer0").text(top5_answer[0]['answer']);
+                    $("#predictedAnswer1").text(top5_answer[1]['answer']);
+                    $("#predictedAnswer2").text(top5_answer[2]['answer']);
+                    $("#predictedAnswer3").text(top5_answer[3]['answer']);
+                    $("#predictedAnswer4").text(top5_answer[4]['answer']);
+                    $("#show-grad-cam-result").show();
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

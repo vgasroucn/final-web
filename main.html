@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- // img upload not working -->
+    <form action="http://vqa.cloudcv.org/upload" method="POST" enctype="multipart/form-data" >
+        <input type="file" name="file" id="">  <br /> <br />
+        <input hidden type="text" name="demo_type" value="demoImageType" id="">
+        <input type="text" name="csrfmiddlewaretoken" id=""> csrfmiddlewaretoken<br /> <br />
+        <input type="text" name="type" id="" value="vqa" hidden>
+        <input type="submit" value="submit">
+    </form>
+    <!-- prediction working for now  -->
+    <!-- csrf token copy from vqa site and socketid from console img path in problem -->
+    <iframe name="dummyframe" id="dummyframe" style="display: none;" ></iframe>
+    <form action="http://vqa.cloudcv.org/" method="POST" target="dummyframe">
+        <input type="text" name="img_path" id=""> img_path <br /> <br />
+        <input type="text" name="question" id=""> question<br /> <br />
+        <input type="text" name="csrfmiddlewaretoken" id=""> csrfmiddlewaretoken<br /> <br />
+        <input type="text" name="socketid" id="">socketid<br /> <br />
+        <input type="text" name="vqa_model" id=""> vqa_model<br /> <br />
+        <input type="submit" value="submit">
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js"></script>
+    <script src="./helper.js"></script>
+
+    <!-- <script src="./main.js"></script> -->
+
+    <!-- display of the result array pending will copy from index.html -->
+    <!-- style is also left -->
+    <script>
+        $(document).ready(function () {
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var socket = new ReconnectingWebSocket(ws_scheme + '://' + "vqa.cloudcv.org" + "/chat/");
+
+            socket.onopen = function () {
+                console.log("User connected to the socket with socketid " + "62e8228f-19a4-40c0-8f6a-7a0dfd12a645");
+                socket.send("62e8228f-19a4-40c0-8f6a-7a0dfd12a645");
+            }
+
+            socket.onmessage = function (response) {
+                // console.log("Getting response from the worker.....");
+                // console.log(JSON.parse(response.data));
+
+                response = JSON.parse(response.data);
+
+                if ("result" in response) {
+                    result = JSON.parse(response['result']);
+                    var d = new Date();
+                    top5_answer = result['top5_list'];
+                    console.log(top5_answer);
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
